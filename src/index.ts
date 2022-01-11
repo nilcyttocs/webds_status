@@ -21,14 +21,14 @@ namespace CommandIDs {
 }
 
 /**
- * Initialization data for the @webds/sandbox extension.
+ * Initialization data for the @webds/status extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: '@webds/status:plugin',
   autoStart: true,
   requires: [ITopBar],
   activate: async (app: JupyterFrontEnd, topBar: ITopBar) => {
-    console.log('JupyterLab extension @webds/sandbox is activated!');
+    console.log('JupyterLab extension @webds/status is activated!');
 
     // PinormOS System Information
 
