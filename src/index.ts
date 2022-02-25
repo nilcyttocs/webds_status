@@ -13,8 +13,8 @@ import { INotification } from 'jupyterlab_toastify';
 
 import { requestAPI } from './handler';
 
-const pinormosInfoTextWidgetClass = 'jp-webdsPinormosInfoWidget';
-const androidConnectionTextWidgetClass = 'jp-webdsAndroidConnectionWidget';
+const pinormosInfoTextWidgetClass = 'jp-webdsStatus-PinormosInfoWidget';
+const androidConnectionTextWidgetClass = 'jp-webdsStatus-AndroidConnectionWidget';
 
 namespace CommandIDs {
   export const systemInfoDialog = 'webds_status_system_info:dialog';
@@ -43,8 +43,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       });
     }
 
-    await requestAPI<any>('about?query=os-info')
-    .then(data => {
+    try {
+      const data = await requestAPI<any>('about?query=os-info');
       let name = data['NAME'];
       let version = data['VERSION_ID'];
       if (name && name[0] === '"') {
@@ -54,32 +54,26 @@ const plugin: JupyterFrontEndPlugin<void> = {
         version = version.slice(1, version.length - 1);
       }
       pinormosInfoText = name + ' ' + version;
-    })
-    .catch(reason => {
-      console.error(
-        `Error on GET /webds/about?os-info\n${reason}`
-      );
-    });
+    } catch (error) {
+      console.error(`Error - GET /webds/about?query=os-info\n${error}`);
+    }
 
-    await requestAPI<any>('about?query=system-info')
-    .then(data => {
+    try {
+      const data = await requestAPI<any>('about?query=system-info');
       for (const module in data) {
         const text = `${module}: ${data[module]}`;
         const entry = document.createElement('span');
         entry.textContent = text;
         dialogBodyNode.appendChild(entry);
       }
-    })
-    .catch(reason => {
-      console.error(
-        `Error on GET /webds/about?system-info\n${reason}`
-      );
-    });
+    } catch (error) {
+      console.error(`Error - GET /webds/about?query=system-info\n${error}`);
+    }
 
     const pinormosInfoTextNode = document.createElement('div');
     pinormosInfoTextNode.textContent = pinormosInfoText;
 
-    const pinormosInfoTextWidget = new Widget({ node: pinormosInfoTextNode });
+    const pinormosInfoTextWidget = new Widget({node: pinormosInfoTextNode});
     pinormosInfoTextWidget.addClass(pinormosInfoTextWidgetClass);
     topBar.addItem('pinormos-info-text', pinormosInfoTextWidget);
 
@@ -99,7 +93,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     class DialogHandler extends Widget {
       constructor() {
-        super({ node: dialogBodyNode });
+        super({node: dialogBodyNode});
       }
     }
 
@@ -117,22 +111,20 @@ const plugin: JupyterFrontEndPlugin<void> = {
     androidConnectionTextNode.textContent = notConnectedText;
     androidConnectionTextNode.style.color = notConnectedColor;
 
-    const androidConnectionTextWidget = new Widget({ node: androidConnectionTextNode });
+    const androidConnectionTextWidget = new Widget({node: androidConnectionTextNode});
     androidConnectionTextWidget.addClass(androidConnectionTextWidgetClass);
     topBar.addItem('android-connection-text', androidConnectionTextWidget);
 
     const checkAndroidConnection = async () => {
-      requestAPI<any>('about?query=android-connection')
-      .then(data=> {
+      try {
+        const data = await requestAPI<any>('about?query=android-connection');
         if (connection !== data.connection) {
           connection = data.connection;
           console.log(`Android phone connection: ${connection}`);
         }
-      }).catch(reason => {
-        console.error(
-          `Error on GET /webds/about?android-connection\n${reason}`
-        );
-      });
+      } catch (error) {
+        console.error(`Error - GET /webds/about?query=android-connection\n${error}`);
+      }
       if (connection != prev) {
         if (connection) {
           const id = await INotification.info(connectedText);
