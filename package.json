@@ -45,11 +45,11 @@
     "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
-    "@jupyterlab/application": "^3.1.0",
-    "@jupyterlab/apputils": "^3.1.2",
-    "@jupyterlab/coreutils": "^5.1.2",
-    "@jupyterlab/services": "^6.1.2",
-    "@lumino/widgets": "^1.30.0",
+    "@jupyterlab/application": "^3.1.12",
+    "@jupyterlab/apputils": "^3.1.12",
+    "@jupyterlab/coreutils": "^5.1.12",
+    "@jupyterlab/services": "^6.1.12",
+    "@lumino/widgets": "^1.19.0",
     "jupyterlab-topbar": "^0.6.0",
     "jupyterlab_toastify": "^4.2.1"
   },
