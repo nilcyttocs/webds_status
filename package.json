@@ -51,7 +51,8 @@
     "@jupyterlab/services": "^6.1.12",
     "@lumino/widgets": "^1.19.0",
     "jupyterlab-topbar": "^0.6.0",
-    "jupyterlab_toastify": "^4.2.1"
+    "jupyterlab_toastify": "^4.2.1",
+    "@webds/service": "file:../webds_service"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.1.0",
@@ -75,7 +76,13 @@
   },
   "jupyterlab": {
     "extension": true,
-    "outputDir": "webds_status/labextension"
+    "outputDir": "webds_status/labextension",
+    "sharedPackages": {
+      "@webds/service": {
+        "bundled": false,
+        "singleton": true
+      }
+    }
   },
   "jupyter-releaser": {
     "hooks": {
