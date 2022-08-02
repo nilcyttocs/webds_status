@@ -23,20 +23,22 @@ namespace CommandIDs {
   export const systemInfoDialog = "webds_status_system_info:dialog";
 }
 
-const redDot = document.createElement("div");
-redDot.style.cssText =
-  "width:10px;height:10px;background-color:red;border-radius:50%;position:absolute;top:5px;right:5px";
-
-const addRedDot = (element: HTMLElement | null) => {
-  if (element) {
-    element.appendChild(redDot);
+const addRedDot = () => {
+  const dsdkUpdate = document.getElementById("webds-launcher-card-DSDK-Update");
+  if (dsdkUpdate) {
+    const redDot = document.createElement("div");
+    redDot.style.cssText =
+      "width:10px;height:10px;background-color:red;border-radius:50%;position:absolute;top:5px;right:5px";
+    dsdkUpdate.appendChild(redDot);
   }
-};
-
-const removeRedDot = (element: HTMLElement | null) => {
-  redDot.remove();
-  if (element) {
-    element.remove();
+  const dsdkUpdateFav = document.getElementById(
+    "webds-launcher-card-DSDK-Update-fav"
+  );
+  if (dsdkUpdateFav) {
+    const redDot = document.createElement("div");
+    redDot.style.cssText =
+      "width:10px;height:10px;background-color:red;border-radius:50%;position:absolute;top:5px;right:5px";
+    dsdkUpdateFav.appendChild(redDot);
   }
 };
 
@@ -94,8 +96,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       rank: 0
     });
 
-    let currentVersion = "";
-
     const getSystemInfo = async () => {
       try {
         const newDialogBodyNode = document.createElement("div");
@@ -116,28 +116,20 @@ const plugin: JupyterFrontEndPlugin<void> = {
       osInfo = service.pinormos.getOSInfo();
       osInfoTextNode.textContent = "PinormOS " + osInfo.current.version;
 
-      if (currentVersion !== osInfo.current.version) {
-        currentVersion = osInfo.current.version;
-        if (osInfo.repo.version > osInfo.current.version) {
-          const toastMessage = `PinormOS version ${osInfo.repo.version} available`;
-          const id = await INotification.info(toastMessage);
-          INotification.update({
-            toastId: id,
-            type: "info",
-            message: toastMessage,
-            autoClose: 5 * 1000
-          });
-          const dsdkUpdate = document.getElementById(
-            "webds-launcher-card-DSDK-Update"
-          );
-          addRedDot(dsdkUpdate);
-        } else {
-          const dsdkUpdateRedDot = document.getElementById(
-            "webds-launcher-card-DSDK-Update-Red-Dot"
-          );
-          removeRedDot(dsdkUpdateRedDot);
-          await getSystemInfo();
-        }
+      if (
+        osInfo.repo.version > osInfo.current.version &&
+        osInfo.repo.downloaded
+      ) {
+        const toastMessage = `PinormOS version ${osInfo.repo.version} available`;
+        const id = await INotification.info(toastMessage);
+        INotification.update({
+          toastId: id,
+          type: "info",
+          message: toastMessage,
+          autoClose: 5 * 1000
+        });
+        addRedDot();
+        return;
       }
 
       setTimeout(getOSInfo, 2000);
