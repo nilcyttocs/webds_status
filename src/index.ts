@@ -143,14 +143,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
     let prev: boolean | undefined = undefined;
     let connection: boolean | undefined = undefined;
 
-    const connectedText: string = "Android phone connected";
-    const connectedColor: string = "black";
-    const notConnectedText: string | null = null;
-    const notConnectedColor: string = "grey";
+    const connectedText = "Android phone connected";
+    const notConnectedText = null;
 
     const androidConnectionTextNode = document.createElement("div");
     androidConnectionTextNode.textContent = notConnectedText;
-    androidConnectionTextNode.style.color = notConnectedColor;
 
     const androidConnectionTextWidget = new Widget({
       node: androidConnectionTextNode
@@ -180,10 +177,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
             autoClose: 5 * 1000
           });
           androidConnectionTextNode.textContent = connectedText;
-          androidConnectionTextNode.style.color = connectedColor;
         } else {
           androidConnectionTextNode.textContent = notConnectedText;
-          androidConnectionTextNode.style.color = notConnectedColor;
         }
       }
       prev = connection;
