@@ -144,16 +144,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
     let connection: boolean | undefined = undefined;
 
     const connectedText = "Android phone connected";
-    const notConnectedText = null;
-
     const androidConnectionTextNode = document.createElement("div");
-    androidConnectionTextNode.textContent = notConnectedText;
+    androidConnectionTextNode.textContent = connectedText;
 
     const androidConnectionTextWidget = new Widget({
       node: androidConnectionTextNode
     });
     androidConnectionTextWidget.addClass(androidConnectionTextWidgetClass);
-    topBar.addItem("android-connection-text", androidConnectionTextWidget);
 
     const checkAndroidConnection = async () => {
       try {
@@ -176,9 +173,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
             message: connectedText,
             autoClose: 5 * 1000
           });
-          androidConnectionTextNode.textContent = connectedText;
+          topBar.addItem("android-connection-text", androidConnectionTextWidget);
         } else {
-          androidConnectionTextNode.textContent = notConnectedText;
+          androidConnectionTextWidget.parent = null;
         }
       }
       prev = connection;
