@@ -15,13 +15,41 @@ import { OSInfo, WebDSService } from "@webds/service";
 
 import { requestAPI } from "./handler";
 
-const pinormosInfoTextWidgetClass = "jp-webdsStatus-PinormosInfoTextWidget";
-const androidConnectionTextWidgetClass =
-  "jp-webdsStatus-AndroidConnectionTextWidget";
-
 namespace CommandIDs {
   export const systemInfoDialog = "webds_status_system_info:dialog";
 }
+
+const pinormosInfoTextWidgetClass = "jp-webdsStatus-PinormosInfoTextWidget";
+
+const androidConnectionTextWidgetClass =
+  "jp-webdsStatus-AndroidConnectionTextWidget";
+
+type TopBarItem = {
+  name: string;
+  widget: Widget;
+};
+
+const topBarItems: TopBarItem[] = [];
+
+const addTopBarItem = (topBar: ITopBar, item: TopBarItem) => {
+  topBarItems.forEach(({ widget }) => {
+    widget.parent = null;
+  });
+  topBarItems.push(item);
+  for (let index = topBarItems.length - 1; index >= 0; index--) {
+    topBar.addItem(topBarItems[index].name, topBarItems[index].widget);
+  }
+};
+
+const removeTopBarItem = (name: string) => {
+  const index = topBarItems.findIndex((item) => {
+    return item.name === name;
+  });
+  if (index > -1) {
+    topBarItems[index].widget.parent = null;
+    topBarItems.splice(index, 1);
+  }
+};
 
 const addRedDot = () => {
   const dsdkUpdate = document.getElementById("webds-launcher-card-DSDK-Update");
@@ -65,7 +93,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const osInfoTextWidget = new Widget({ node: osInfoTextNode });
     osInfoTextWidget.addClass(pinormosInfoTextWidgetClass);
-    topBar.addItem("pinormos-info-text", osInfoTextWidget);
+    addTopBarItem(topBar, {
+      name: "pinormos-info-text",
+      widget: osInfoTextWidget
+    });
 
     let dialogBodyNode: HTMLDivElement;
 
@@ -173,9 +204,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
             message: connectedText,
             autoClose: 5 * 1000
           });
-          topBar.addItem("android-connection-text", androidConnectionTextWidget);
+          addTopBarItem(topBar, {
+            name: "android-connection-text",
+            widget: androidConnectionTextWidget
+          });
         } else {
-          androidConnectionTextWidget.parent = null;
+          removeTopBarItem("android-connection-text");
         }
       }
       prev = connection;
