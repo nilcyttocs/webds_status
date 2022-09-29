@@ -56,7 +56,7 @@ const addRedDot = () => {
   if (dsdkUpdate) {
     const redDot = document.createElement("div");
     redDot.style.cssText =
-      "width:10px;height:10px;background-color:red;border-radius:50%;position:absolute;top:5px;right:5px";
+      "width:12px;height:12px;position:absolute;top:7px;right:7px;border-radius:50%;background:radial-gradient(circle at 4px 4px, red, black)";
     dsdkUpdate.appendChild(redDot);
   }
   const dsdkUpdateFav = document.getElementById(
@@ -65,7 +65,7 @@ const addRedDot = () => {
   if (dsdkUpdateFav) {
     const redDot = document.createElement("div");
     redDot.style.cssText =
-      "width:10px;height:10px;background-color:red;border-radius:50%;position:absolute;top:5px;right:5px";
+      "width:12px;height:12px;position:absolute;top:7px;right:7px;border-radius:50%;background:radial-gradient(circle at 4px 4px, red, black)";
     dsdkUpdateFav.appendChild(redDot);
   }
 };
