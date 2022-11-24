@@ -11,7 +11,7 @@ import { ITopBar } from "jupyterlab-topbar";
 
 import { INotification } from "jupyterlab_toastify";
 
-import { OSInfo, WebDSService } from "@webds/service";
+import { OSInfo, StashInfo, WebDSService } from "@webds/service";
 
 import { requestAPI } from "./handler";
 
@@ -48,25 +48,6 @@ const removeTopBarItem = (name: string) => {
   if (index > -1) {
     topBarItems[index].widget.parent = null;
     topBarItems.splice(index, 1);
-  }
-};
-
-const addRedDot = () => {
-  const dsdkUpdate = document.getElementById("webds-launcher-card-DSDK-Update");
-  if (dsdkUpdate) {
-    const redDot = document.createElement("div");
-    redDot.style.cssText =
-      "width:12px;height:12px;position:absolute;top:7px;right:7px;border-radius:50%;background:radial-gradient(circle at 4px 4px, red, black)";
-    dsdkUpdate.appendChild(redDot);
-  }
-  const dsdkUpdateFav = document.getElementById(
-    "webds-launcher-card-DSDK-Update-fav"
-  );
-  if (dsdkUpdateFav) {
-    const redDot = document.createElement("div");
-    redDot.style.cssText =
-      "width:12px;height:12px;position:absolute;top:7px;right:7px;border-radius:50%;background:radial-gradient(circle at 4px 4px, red, black)";
-    dsdkUpdateFav.appendChild(redDot);
   }
 };
 
@@ -161,15 +142,35 @@ const plugin: JupyterFrontEndPlugin<void> = {
           message: toastMessage,
           autoClose: 5 * 1000
         });
-        addRedDot();
         return;
       }
 
       setTimeout(getOSInfo, 2000);
     };
 
-    await getOSInfo();
-    await getSystemInfo();
+    getOSInfo();
+    getSystemInfo();
+
+    const checkDataCollectionStash = async () => {
+      if (window.navigator.onLine) {
+        const stashInfo: StashInfo = service.pinormos.getStashInfo();
+        if (stashInfo.dataAvailable) {
+          const toastMessage = "Stashed data available to upload to TestRail";
+          const id = await INotification.info(toastMessage);
+          INotification.update({
+            toastId: id,
+            type: "info",
+            message: toastMessage,
+            autoClose: 5 * 1000
+          });
+          return;
+        }
+      }
+
+      setTimeout(checkDataCollectionStash, 2000);
+    };
+
+    checkDataCollectionStash();
 
     // Android Phone Connection Information
 
