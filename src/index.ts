@@ -152,25 +152,25 @@ const plugin: JupyterFrontEndPlugin<void> = {
     getSystemInfo();
 
     const checkDataCollectionStash = async () => {
-      if (window.navigator.onLine) {
-        const stashInfo: StashInfo = service.pinormos.getStashInfo();
-        if (stashInfo.dataAvailable) {
-          const toastMessage = "Stashed data available to upload to TestRail";
-          const id = await INotification.info(toastMessage);
-          INotification.update({
-            toastId: id,
-            type: "info",
-            message: toastMessage,
-            autoClose: 5 * 1000
-          });
-          return;
-        }
+      const stashInfo: StashInfo = service.pinormos.getStashInfo();
+      if (stashInfo.dataAvailable) {
+        const toastMessage = "Stashed data available to upload to TestRail";
+        const id = await INotification.info(toastMessage);
+        INotification.update({
+          toastId: id,
+          type: "info",
+          message: toastMessage,
+          autoClose: 5 * 1000
+        });
+        return;
       }
 
       setTimeout(checkDataCollectionStash, 2000);
     };
 
-    checkDataCollectionStash();
+    if (service.pinormos.isTestRailOnline()) {
+      checkDataCollectionStash();
+    }
 
     // Android Phone Connection Information
 
