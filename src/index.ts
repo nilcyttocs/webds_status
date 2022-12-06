@@ -65,8 +65,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
   ) => {
     console.log("JupyterLab extension @webds/status is activated!");
 
-    await service.initialized;
-
     // PinormOS System Information
 
     let osInfo: OSInfo;
