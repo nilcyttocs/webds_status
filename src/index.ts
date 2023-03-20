@@ -126,7 +126,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       osInfoTextNode.textContent = 'PinormOS ' + osInfo.current.version;
 
       if (
-        osInfo.repo.version > osInfo.current.version &&
+        osInfo.repo.versionNum > osInfo.current.versionNum &&
         osInfo.repo.downloaded
       ) {
         const toastMessage = `PinormOS version ${osInfo.repo.version} available`;
