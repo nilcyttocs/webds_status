@@ -206,6 +206,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
             name: 'android-connection-text',
             widget: androidConnectionTextWidget
           });
+          const external = service.pinormos.isExternal();
+          try {
+            if (external) {
+              await service.packrat.cache.addPublicConfig();
+            } else {
+              await service.packrat.cache.addPrivateConfig();
+            }
+          } catch (error) {
+            console.error(error);
+          }
         } else {
           removeTopBarItem('android-connection-text');
         }
