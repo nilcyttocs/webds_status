@@ -128,7 +128,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       osInfoTextNode.textContent = 'PinormOS ' + osInfo.current.version;
 
       if (osInfo.repo.versionNum > osInfo.current.versionNum) {
-        const toastMessage = `PinormOS version ${osInfo.repo.version} available for update`;
+        const toastMessage = `PinormOS ${osInfo.repo.version} update available`;
         const id = await INotification.info(toastMessage);
         INotification.update({
           toastId: id,
