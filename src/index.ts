@@ -18,6 +18,8 @@ namespace CommandIDs {
 
 const pinormosInfoTextWidgetClass = 'jp-webdsStatus-PinormosInfoTextWidget';
 
+const pinormosUpdateTextWidgetClass = 'jp-webdsStatus-PinormosUpdateTextWidget';
+
 const androidConnectionTextWidgetClass =
   'jp-webdsStatus-AndroidConnectionTextWidget';
 
@@ -125,11 +127,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       osInfo = service.pinormos.getOSInfo();
       osInfoTextNode.textContent = 'PinormOS ' + osInfo.current.version;
 
-      if (
-        osInfo.repo.versionNum > osInfo.current.versionNum &&
-        osInfo.repo.downloaded
-      ) {
-        const toastMessage = `PinormOS version ${osInfo.repo.version} available`;
+      if (osInfo.repo.versionNum > osInfo.current.versionNum) {
+        const toastMessage = `PinormOS version ${osInfo.repo.version} available for update`;
         const id = await INotification.info(toastMessage);
         INotification.update({
           toastId: id,
@@ -137,6 +136,18 @@ const plugin: JupyterFrontEndPlugin<void> = {
           message: toastMessage,
           autoClose: 5 * 1000
         });
+
+        const pinormosUpdateTextNode = document.createElement('div');
+        pinormosUpdateTextNode.textContent = toastMessage;
+        const pinormosUpdateTextWidget = new Widget({
+          node: pinormosUpdateTextNode
+        });
+        pinormosUpdateTextWidget.addClass(pinormosUpdateTextWidgetClass);
+        addTopBarItem(topBar, {
+          name: 'pinormos-update-text',
+          widget: pinormosUpdateTextWidget
+        });
+
         return;
       }
 
@@ -175,7 +186,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const connectedText = 'Android phone connected';
     const androidConnectionTextNode = document.createElement('div');
     androidConnectionTextNode.textContent = connectedText;
-
     const androidConnectionTextWidget = new Widget({
       node: androidConnectionTextNode
     });
