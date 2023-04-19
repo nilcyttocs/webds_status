@@ -8,7 +8,12 @@ import {
 } from '@jupyterlab/application';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { OSInfo, StashInfo, WebDSService } from '@webds/service';
+import {
+  ConnectionInfo,
+  OSInfo,
+  StashInfo,
+  WebDSService
+} from '@webds/service';
 
 import { requestAPI } from './handler';
 
@@ -20,11 +25,14 @@ const pinormosInfoTextWidgetClass = 'jp-webdsStatus-PinormosInfoTextWidget';
 
 const pinormosUpdateTextWidgetClass = 'jp-webdsStatus-PinormosUpdateTextWidget';
 
+const connectionInfoTextWidgetClass = 'jp-webdsStatus-connectionInfoTextWidget';
+
 const androidConnectionTextWidgetClass =
   'jp-webdsStatus-AndroidConnectionTextWidget';
 
 type TopBarItem = {
   name: string;
+  order: number;
   widget: Widget;
 };
 
@@ -35,9 +43,13 @@ const addTopBarItem = (topBar: ITopBar, item: TopBarItem) => {
     widget.parent = null;
   });
   topBarItems.push(item);
+  topBarItems.sort((a, b) => b.order - a.order);
+  topBarItems.forEach(item => topBar.addItem(item.name, item.widget));
+  /*
   for (let index = topBarItems.length - 1; index >= 0; index--) {
     topBar.addItem(topBarItems[index].name, topBarItems[index].widget);
   }
+  */
 };
 
 const removeTopBarItem = (name: string) => {
@@ -70,13 +82,20 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const osInfoTextNode = document.createElement('div');
     osInfoTextNode.textContent = '';
-
     const osInfoTextWidget = new Widget({ node: osInfoTextNode });
     osInfoTextWidget.addClass(pinormosInfoTextWidgetClass);
     addTopBarItem(topBar, {
       name: 'pinormos-info-text',
+      order: 0,
       widget: osInfoTextWidget
     });
+
+    const pinormosUpdateTextNode = document.createElement('div');
+    pinormosUpdateTextNode.textContent = '';
+    const pinormosUpdateTextWidget = new Widget({
+      node: pinormosUpdateTextNode
+    });
+    pinormosUpdateTextWidget.addClass(pinormosUpdateTextWidgetClass);
 
     let dialogBodyNode: HTMLDivElement;
 
@@ -137,14 +156,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
           autoClose: 5 * 1000
         });
 
-        const pinormosUpdateTextNode = document.createElement('div');
         pinormosUpdateTextNode.textContent = toastMessage;
-        const pinormosUpdateTextWidget = new Widget({
-          node: pinormosUpdateTextNode
-        });
-        pinormosUpdateTextWidget.addClass(pinormosUpdateTextWidgetClass);
         addTopBarItem(topBar, {
           name: 'pinormos-update-text',
+          order: 1,
           widget: pinormosUpdateTextWidget
         });
 
@@ -156,6 +171,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     getOSInfo();
     getSystemInfo();
+
+    // Data Collection Stash Information
 
     const checkDataCollectionStash = async () => {
       const stashInfo: StashInfo = service.pinormos.getStashInfo();
@@ -178,12 +195,55 @@ const plugin: JupyterFrontEndPlugin<void> = {
       checkDataCollectionStash();
     }
 
-    // Android Phone Connection Information
+    // Connection Information
+
+    const connectionInfoTextNode = document.createElement('div');
+    connectionInfoTextNode.textContent = '';
+    const connectionInfoTextWidget = new Widget({
+      node: connectionInfoTextNode
+    });
+    connectionInfoTextWidget.addClass(connectionInfoTextWidgetClass);
+
+    let prevConnectionInfo: ConnectionInfo | undefined = undefined;
+    const getConnectionInfo = () => {
+      const connectionInfo: ConnectionInfo = service.pinormos.getConnectionInfo();
+      if (
+        prevConnectionInfo === undefined ||
+        JSON.stringify(prevConnectionInfo) !== JSON.stringify(connectionInfo)
+      ) {
+        prevConnectionInfo = { ...connectionInfo };
+        let textContent = 'Connection: ';
+        if (connectionInfo.interface === undefined) {
+          textContent += 'invalid';
+        } else {
+          switch (connectionInfo.interface) {
+            case 'i2c':
+              textContent += `I2C addr=${connectionInfo.i2cAddr}`;
+              break;
+            case 'spi':
+              textContent += `SPI mode=${connectionInfo.spiMode}`;
+              break;
+            case 'phone':
+              textContent += 'Android phone';
+              break;
+            default:
+              break;
+          }
+        }
+        connectionInfoTextNode.textContent = textContent;
+      }
+
+      setTimeout(getConnectionInfo, 1000);
+    };
+
+    getConnectionInfo();
+
+    // Android Device Connection Information
 
     let prev: boolean | undefined = undefined;
     let connection: boolean | undefined = undefined;
 
-    const connectedText = 'Android phone connected';
+    const connectedText = 'Connection: Android device';
     const androidConnectionTextNode = document.createElement('div');
     androidConnectionTextNode.textContent = connectedText;
     const androidConnectionTextWidget = new Widget({
@@ -196,7 +256,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         const data = await requestAPI<any>('about?query=android-connection');
         if (connection !== data.connection) {
           connection = data.connection;
-          console.log(`Android phone connection: ${connection}`);
+          console.log(`Android device connection: ${connection}`);
         }
       } catch (error) {
         console.error(
@@ -212,8 +272,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
             message: connectedText,
             autoClose: 5 * 1000
           });
+          removeTopBarItem('connection-info-text');
           addTopBarItem(topBar, {
             name: 'android-connection-text',
+            order: 3,
             widget: androidConnectionTextWidget
           });
           const external = service.pinormos.isExternal();
@@ -228,6 +290,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
         } else {
           removeTopBarItem('android-connection-text');
+          addTopBarItem(topBar, {
+            name: 'connection-info-text',
+            order: 2,
+            widget: connectionInfoTextWidget
+          });
         }
       }
       prev = connection;
