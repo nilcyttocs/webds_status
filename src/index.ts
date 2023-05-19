@@ -216,6 +216,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         if (connectionInfo.interface === undefined) {
           textContent += 'invalid';
         } else {
+          textContent += `${connectionInfo.partNumber} `;
           switch (connectionInfo.interface) {
             case 'i2c':
               textContent += `I2C addr=${connectionInfo.i2cAddr}`;
