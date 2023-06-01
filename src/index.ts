@@ -197,10 +197,57 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // Connection Information
 
+    const connectionInfoNode = document.createElement('div');
+    connectionInfoNode.style.display = 'flex';
+    connectionInfoNode.style.flexDirection = 'row';
+    connectionInfoNode.style.alignItems = 'center';
+    connectionInfoNode.title = 'Refresh Device Connection';
+
     const connectionInfoTextNode = document.createElement('div');
+    connectionInfoTextNode.style.marginRight = '8px';
     connectionInfoTextNode.textContent = '';
+
+    const connectionInfoRefreshIconNode = document.createElement('div');
+    connectionInfoRefreshIconNode.style.cursor = 'pointer';
+    connectionInfoRefreshIconNode.style.width = '16px';
+    connectionInfoRefreshIconNode.style.height = '16px';
+    connectionInfoRefreshIconNode.style.borderRadius = '8px';
+    connectionInfoRefreshIconNode.style.display = 'flex';
+    const svgElement = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'svg'
+    );
+    svgElement.setAttribute('viewBox', '0 0 16 16');
+    svgElement.style.width = '100%';
+    svgElement.style.height = '100%';
+    const pathElement = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'path'
+    );
+    pathElement.setAttribute(
+      'd',
+      'M 13.550781 7.15625 L 13.550781 2.699219 L 12.078125 4.171875 C 10.914062 3.007812 9.5625 2.417969 8.023438 2.417969 C 4.949219 2.417969 2.449219 4.921875 2.449219 8 C 2.449219 11.074219 4.949219 13.578125 8.023438 13.578125 C 10.164062 13.578125 12.710938 12.464844 13.441406 9.339844 L 13.457031 9.28125 L 11.839844 9.28125 L 11.832031 9.3125 C 11.292969 10.933594 9.761719 12.023438 8.023438 12.023438 C 6.957031 12.027344 5.929688 11.601562 5.179688 10.84375 C 4.421875 10.09375 3.996094 9.066406 4 8 C 4 5.78125 5.804688 3.976562 8.023438 3.976562 C 9.058594 3.976562 9.84375 4.265625 10.988281 5.261719 L 9.089844 7.15625 Z M 13.550781 7.15625 '
+    );
+    pathElement.style.fill = '#007dc3';
+    svgElement.appendChild(pathElement);
+    connectionInfoRefreshIconNode.appendChild(svgElement);
+    connectionInfoRefreshIconNode.addEventListener('click', () => {
+      service.pinormos.checkConnection();
+    });
+    connectionInfoRefreshIconNode.addEventListener('mouseover', function () {
+      const mode = service.ui.getJupyterThemeMode();
+      connectionInfoRefreshIconNode.style.backgroundColor =
+        mode === 'light' ? '#e0e0e0' : '#616161';
+    });
+    connectionInfoRefreshIconNode.addEventListener('mouseout', function () {
+      connectionInfoRefreshIconNode.style.backgroundColor = 'transparent';
+    });
+
+    connectionInfoNode.appendChild(connectionInfoTextNode);
+    connectionInfoNode.appendChild(connectionInfoRefreshIconNode);
+
     const connectionInfoTextWidget = new Widget({
-      node: connectionInfoTextNode
+      node: connectionInfoNode
     });
     connectionInfoTextWidget.addClass(connectionInfoTextWidgetClass);
 
